@@ -7,7 +7,7 @@ struct Cli {
     #[arg(short, long)]
     debug: bool,
 
-    /// vMix API endpoint (http://127.0.0.1:8088 by default)
+    /// Specify a non-local vMix endpoint
     #[arg(short, long)]
     api: Option<String>,
 
@@ -143,6 +143,5 @@ fn main() -> Result<(), reqwest::Error> {
                 .send()?;
         }
     }
-
     Ok(())
 }
