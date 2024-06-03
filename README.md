@@ -1,0 +1,1 @@
+A simple cli app to automate vMix over its HTTP api, intended to be used in TouchPortal or similar apps
