@@ -19,25 +19,33 @@ struct Cli {
 enum Commands {
     /// Switch to the starting input, and begin streaming
     Start {
-        /// The input
+        /// The input to use
         #[arg(short, long)]
         input: Option<String>,
+        
+        /// Enables streaming to Twitch
+        #[arg(short, long)]
+        twitch: Option<bool>,
+
+        /// Enables streaming to YouTube
+        #[arg(short, long)]
+        youtube: Option<bool>,
     },
     /// Switch to the break input
     Break {
-        /// The input
+        /// The input to use
         #[arg(short, long)]
         input: Option<String>,
     },
     /// Switch to the game input
     Game {
-        /// The input
+        /// The input to use
         #[arg(short, long)]
         input: Option<String>,
     },
     /// Switch to the ending input, and end streaming
     End {
-        /// The input
+        /// The input to use
         #[arg(short, long)]
         input: Option<String>,
     },
@@ -54,30 +62,62 @@ fn main() -> Result<(), reqwest::Error> {
     .to_owned()
         + "/api";
 
-    // let state = api.try_clone().unwrap().send()?.text()?;
-    let state = client.get(&url).send()?.text()?;
-    if cli.debug {
-        println!("{}", &state);
-    }
+    // if cli.debug {
+    //     let state = client.get(&url).send()?.text()?;
+    //     println!("{}", &state);
+    // }
 
     match &cli.command {
-        Commands::Start { input } => {
+        Commands::Start { input, twitch, youtube } => {
             // Switch to start
             client
                 .get(&url)
                 .query(&[
-                    ("Function", "ActiveInput"),
+                    ("Function", "CutDirect"),
                     ("Input", &input.clone().unwrap_or(1.to_string())),
                 ])
                 .send()?;
+            
+            
+            // Start streaming
+            if cli.debug {
+                client 
+                    .get(&url)
+                    .query(&[
+                        ("Function", "StartStreaming"),
+                        ("Value", "3")
+                    ])
+                    .send()?;
 
+                return Ok(())
+            }
+
+            if twitch.unwrap_or(false) {
+                client 
+                    .get(&url)
+                    .query(&[
+                        ("Function", "StartStreaming"),
+                        ("Value", "0")
+                    ])
+                    .send()?;
+            }
+
+            if youtube.unwrap_or(false) {
+                client 
+                    .get(&url)
+                    .query(&[
+                        ("Function", "StartStreaming"),
+                        ("Value", "1")
+                    ])
+                    .send()?;
+            }
         }
         Commands::Break { input } => {
             client
                 .get(&url)
                 // Switch to break
                 .query(&[
-                    ("Function", "ActiveInput"),
+                    ("Function", "CutDirect"),
                     ("Input", &input.clone().unwrap_or(2.to_string())),
                 ])
                 .send()?;
@@ -87,7 +127,7 @@ fn main() -> Result<(), reqwest::Error> {
                 .get(&url)
                 // Switch to game
                 .query(&[
-                    ("Function", "ActiveInput"),
+                    ("Function", "CutDirect"),
                     ("Input", &input.clone().unwrap_or(3.to_string())),
                 ])
                 .send()?;
@@ -97,7 +137,7 @@ fn main() -> Result<(), reqwest::Error> {
                 .get(&url)
                 // Switch to end
                 .query(&[
-                    ("Function", "ActiveInput"),
+                    ("Function", "CutDirect"),
                     ("Input", &input.clone().unwrap_or(4.to_string())),
                 ])
                 .send()?;
