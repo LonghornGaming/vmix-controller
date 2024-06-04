@@ -7,16 +7,15 @@ use clap::{Parser, Subcommand};
 use log::info;
 use serde::{Deserialize, Serialize};
 
+use std::fs::File;
+use std::io::Write;
+
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Cli {
     /// Enable debug mode (streaming won't be started)
     #[arg(short, long)]
     debug: bool,
-
-    /// Dump vMix XML to file
-    #[arg(long)]
-    dump_xml: bool,
 
     #[command(subcommand)]
     command: Commands,
@@ -28,6 +27,8 @@ enum Commands {
     Inputs,
     /// Get the available titles
     Titles,
+    /// Dump XML to file
+    DumpXml,
     /// Switch to a given input
     Switch {
         #[command(subcommand)]
@@ -69,7 +70,7 @@ fn main() -> Result<()> {
     );
     let cfg: config::Config = confy::load("vmix-controller", None)?;
 
-    let vmix = client::Client::new(&cfg, cli.dump_xml)?;
+    let vmix = client::Client::new(&cfg)?;
 
     match &cli.command {
         Commands::Inputs => {
@@ -78,6 +79,10 @@ fn main() -> Result<()> {
 
         Commands::Titles => {
             println!("\nTitles: {:#?}", vmix.titles());
+        }
+
+        Commands::DumpXml => {
+            File::create("last_state.xml")?.write_all(vmix.xml()?.as_bytes())?;
         }
 
         Commands::Inc { title, idx } => {

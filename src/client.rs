@@ -8,9 +8,6 @@ use anyhow::{Context, Result};
 use log::{info, warn};
 use reqwest::blocking::RequestBuilder;
 
-use std::fs::File;
-use std::io::prelude::*;
-
 pub struct Client {
     api: String,
     client: reqwest::blocking::Client,
@@ -18,7 +15,7 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn new(cfg: &Config, dump_xml: bool) -> Result<Self> {
+    pub fn new(cfg: &Config) -> Result<Self> {
         info!("Initializing endpoint {}", cfg.endpoint);
         let client = reqwest::blocking::Client::new();
 
@@ -33,10 +30,6 @@ impl Client {
             })?
             .text()?;
 
-        if dump_xml {
-            File::create("last_state.xml")?.write_all(&response.as_bytes())?;
-        }
-
         let state: Vmix = quick_xml::de::from_str(&response)?;
         info!("{:#?}", &state);
 
@@ -46,6 +39,17 @@ impl Client {
         }
 
         Ok(Self { api, client, state })
+    }
+
+    pub fn xml(&self) -> Result<String> {
+        Ok(self.client
+            .get(&self.api)
+            .send()
+            .with_context(|| {
+                "could not connect to vMix (check the IP-address and the port in vMix settings)"
+                    .to_string()
+            })?
+            .text()?)
     }
 
     pub fn inputs(&self) -> &[xml::Input] {
