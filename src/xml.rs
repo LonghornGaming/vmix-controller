@@ -1,7 +1,6 @@
 #![allow(dead_code)]
 
-use serde::{Serialize, Deserialize};
-
+use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Debug)]
 pub struct Vmix {
@@ -19,23 +18,23 @@ pub struct Vmix {
     #[serde(rename = "playList")]
     pub playlist: bool,
     #[serde(rename = "multiCorder")]
-    pub multicorder: bool
+    pub multicorder: bool,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct InputList {
     #[serde(default)]
-    pub input: Vec<Input>
+    pub input: Vec<Input>,
 }
 #[derive(Deserialize, Debug)]
 pub struct OverlayList {
     #[serde(default)]
-    pub overlay: Vec<Overlay>
+    pub overlay: Vec<Overlay>,
 }
 #[derive(Deserialize, Debug)]
 pub struct TransitionList {
     #[serde(default)]
-    pub transition: Vec<Transition>
+    pub transition: Vec<Transition>,
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Input {
@@ -52,12 +51,7 @@ pub struct Input {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct Overlay {
-
-}
-
+pub struct Overlay {}
 
 #[derive(Deserialize, Debug)]
-pub struct Transition {
-
-}
+pub struct Transition {}
