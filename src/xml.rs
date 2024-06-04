@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 #[derive(Deserialize, Debug)]
 pub struct Vmix {
@@ -36,7 +36,7 @@ pub struct TransitionList {
     #[serde(default)]
     pub transition: Vec<Transition>,
 }
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Input {
     #[serde(rename = "@key")]
     pub key: String,
@@ -48,6 +48,7 @@ pub struct Input {
     pub title: String,
     #[serde(rename = "@state")]
     pub state: String,
+    pub text: Option<Vec<Text>>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -55,3 +56,13 @@ pub struct Overlay {}
 
 #[derive(Deserialize, Debug)]
 pub struct Transition {}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct Text {
+    #[serde(rename = "@index")]
+    pub index: String,
+    #[serde(rename = "@name")]
+    pub name: String,
+    #[serde(rename = "$text")]
+    pub val: String,
+}

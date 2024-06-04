@@ -37,10 +37,10 @@ enum Commands {
     Inc {
         /// The title
         #[arg(short, long)]
-        input: crate::config::Input,
+        title: crate::config::Input,
         /// The index of the text to increment
         #[arg(short, long)]
-        title: u32,
+        idx: Option<u32>,
     },
 }
 
@@ -73,20 +73,17 @@ fn main() -> Result<()> {
 
     match &cli.command {
         Commands::Inputs => {
-            let inputs = vmix.inputs();
-    
-            println!("\nInputs: {:#?}", inputs);
+            println!("\nInputs: {:#?}", vmix.inputs());
         }
 
         Commands::Titles => {
-            use crate::xml::Input;
-            let inputs = vmix.inputs();
-    
-            println!("\nTitles: {:#?}", inputs.iter().filter(|i: &&Input| i.kind == "GT").collect::<Vec<&Input>>());
+            println!("\nTitles: {:#?}", vmix.titles());
         }
 
-        Commands::Inc { input, title } => {
-
+        Commands::Inc { title, idx } => {
+            let text = vmix.get_text(title, *idx)?;
+            let val: u32 = text.parse()?;
+            vmix.set_text(title, *idx, (val + 1).to_string())?;
         }
 
         Commands::Switch { input } => {

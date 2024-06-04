@@ -48,8 +48,12 @@ impl Client {
         Ok(Self { api, client, state })
     }
 
-    pub fn inputs(&self) -> Vec<xml::Input> {
-        self.state.inputs.input.clone()
+    pub fn inputs(&self) -> &[xml::Input] {
+        self.state.inputs.input.as_slice()
+    }
+
+    pub fn titles(&self) -> Vec<&xml::Input> {
+        self.inputs().iter().filter(|i| i.kind == "GT").collect()
     }
 
     fn call(&self, name: &str) -> RequestBuilder {
@@ -87,16 +91,46 @@ impl Client {
         Ok(())
     }
 
-    pub fn set_text(&self, input: &Input, value: String) -> Result<()> {
-        self.call("SetText")
-            .query(&[
-                ("Input", match input {
-                        Input::Key(key) => key.clone(),
-                        Input::Number(num) => num.to_string(),
-                },),
-                ("Value", value)
-            ])
-            .send()?;
+    pub fn set_text(&self, input: &Input, idx: Option<u32>, value: String) -> Result<()> {
+        let new = self.call("SetText").query(&[
+            (
+                "Input",
+                match input {
+                    Input::Key(key) => key.clone(),
+                    Input::Number(num) => num.to_string(),
+                },
+            ),
+            ("Value", value),
+        ]);
+
+        match idx {
+            None => new.send()?,
+            Some(i) => new.query(&[("SelectedIndex", i.to_string())]).send()?,
+        };
+
         Ok(())
+    }
+
+    pub fn get(&self, input: &Input) -> Result<&xml::Input> {
+        let val = self
+            .inputs()
+            .iter()
+            .filter(|t| match &input {
+                &Input::Number(num) => t.number.parse::<u32>().unwrap() == *num,
+                &Input::Key(key) => t.key == *key || t.title == *key,
+            })
+            .nth(0)
+            .unwrap();
+
+        Ok(val)
+    }
+
+    pub fn get_text(&self, input: &Input, idx: Option<u32>) -> Result<String> {
+        let prev_text = &self.get(input)?.text.as_ref().unwrap()[match idx {
+            Some(i) => i as usize,
+            None => 0,
+        }];
+
+        Ok(prev_text.val.clone())
     }
 }
