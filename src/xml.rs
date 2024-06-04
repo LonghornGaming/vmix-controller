@@ -1,15 +1,18 @@
-use serde::Deserialize;
+#![allow(dead_code)]
+
+use serde::{Serialize, Deserialize};
+
 
 #[derive(Deserialize, Debug)]
 pub struct Vmix {
     pub version: String,
     pub inputs: InputList,
-    pub overlays: OverlayList,
+    // pub overlays: OverlayList,
     pub preview: u32,
     pub active: u32,
     #[serde(rename = "fadeToBlack")]
     pub ftb: bool,
-    pub transitions: TransitionList,
+    // pub transitions: TransitionList,
     pub recording: bool,
     pub external: bool,
     pub streaming: bool,
@@ -34,7 +37,7 @@ pub struct TransitionList {
     #[serde(default)]
     pub transition: Vec<Transition>
 }
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Input {
     #[serde(rename = "@key")]
     pub key: String,

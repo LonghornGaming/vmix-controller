@@ -5,6 +5,7 @@ mod xml;
 use clap::{Parser, Subcommand};
 use log::info;
 use anyhow::{Context, Result};
+use serde::{Deserialize, Serialize};
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -22,34 +23,19 @@ struct Cli {
 }
 
 
-#[derive(Subcommand)]
-enum Commands {
+#[derive(Subcommand, Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Commands {
     /// Switch to the starting input, and begin streaming
-    Start {
-        /// The input to use
-        #[arg(short, long)]
-        input: Option<String>,
-    },
+    Start,
     /// Switch to the break input
-    Break {
-        /// The input to use
-        #[arg(short, long)]
-        input: Option<String>,
-    },
+    Break,
     /// Switch to the game input
-    Game {
-        /// The input to use
-        #[arg(short, long)]
-        input: Option<String>,
-    },
+    Game,
     /// Switch to the ending input, and end streaming
-    End {
-        /// The input to use
-        #[arg(short, long)]
-        input: Option<String>,
-    },
+    End,
+    /// Get the available inputs
+    Inputs,
 }
-
 
 
 fn main() -> Result<()> {
@@ -59,12 +45,12 @@ fn main() -> Result<()> {
     info!("Config: {:?}", confy::get_configuration_file_path("vmix-controller", None).with_context(|| "Bad configuration file")?);
     let cfg: config::Config = confy::load("vmix-controller", None)?;
 
-    let vmix = client::Client::new(cfg, cli.dump_xml)?;
-
+    let vmix = client::Client::new(&cfg, cli.dump_xml)?;
+    
     match &cli.command {
-        Commands::Start { input } => {
+        Commands::Start => {
             // Switch to start
-            vmix.quick_play(&input.clone().unwrap_or(1.to_string()))?;
+            vmix.quick_play(cfg.inputs.at(cli.command)?)?;
 
             // Start streaming
             info!("Starting streaming");
@@ -74,14 +60,17 @@ fn main() -> Result<()> {
 
             vmix.start_streaming()?;
         }
-        Commands::Break { input } => {
-            vmix.quick_play(&input.clone().unwrap_or(2.to_string()))?;
+        Commands::Break => {
+            vmix.quick_play(cfg.inputs.at(cli.command)?)?;
         }
-        Commands::Game { input } => {
-            vmix.quick_play(&input.clone().unwrap_or(3.to_string()))?;
+        Commands::Game => {
+            vmix.quick_play(cfg.inputs.at(cli.command)?)?;
         }
-        Commands::End { input } => {
-            vmix.quick_play(&input.clone().unwrap_or(4.to_string()))?;
+        Commands::End  => {
+            vmix.quick_play(cfg.inputs.at(cli.command)?)?;
+        }
+        Commands::Inputs => {
+            println!("\n{:#?}", vmix.inputs())
         }
     }
     Ok(())

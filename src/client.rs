@@ -1,8 +1,12 @@
+#![allow(dead_code)]
+
 use anyhow::{Context, Result};
 use reqwest::blocking::RequestBuilder;
 use log::{info, warn};
 use crate::config::Config;
 use crate::xml::Vmix;
+use crate::xml;
+use crate::config::Input;
 
 use std::fs::File;
 use std::io::prelude::*;
@@ -14,7 +18,7 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn new(cfg: Config, dump_xml: bool) -> Result<Self> {
+    pub fn new(cfg: &Config, dump_xml: bool) -> Result<Self> {
         info!("Initializing endpoint {}", cfg.endpoint);
         let client = reqwest::blocking::Client::new();
 
@@ -25,8 +29,7 @@ impl Client {
                                         .text()?;
 
         if dump_xml {
-            let mut state_file = File::create("last_state.xml")?;
-            state_file.write_all(&response.as_bytes())?;
+            File::create("last_state.xml")?.write_all(&response.as_bytes())?;
         }
 
         let state: Vmix = quick_xml::de::from_str(&response)?;
@@ -43,6 +46,11 @@ impl Client {
             state
         })
     }
+
+    pub fn inputs(&self) -> Vec<xml::Input> {
+        self.state.inputs.input.clone()
+    }
+
     fn call(&self, name: &str) -> RequestBuilder {
         self.client
             .get(&self.api)
@@ -54,16 +62,22 @@ impl Client {
         Ok(())
     }
 
-    pub fn quick_play(&self, input: &str) -> Result<()> {
+    pub fn quick_play(&self, input: &Input) -> Result<()> {
         self.call("QuickPlay").query(&[
-            ("Input", input)
+            ("Input",  match input {
+                Input::Key(key) => key.clone(),
+                Input::Number(num) => num.to_string(),
+            })
         ]).send()?;
         Ok(())
     }
 
-    pub fn cut_direct(&self, input: &str) -> Result<()> {
+    pub fn cut_direct(&self, input: &Input) -> Result<()> {
         self.call("CutDirect").query(&[
-            ("Input", input)
+            ("Input", match input {
+                Input::Key(key) => key.clone(),
+                Input::Number(num) => num.to_string(),
+            })
         ]).send()?;
         Ok(())
     }
