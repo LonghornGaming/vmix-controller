@@ -1,5 +1,6 @@
-mod vmix;
+mod client;
 mod config;
+mod xml;
 
 use clap::{Parser, Subcommand};
 use log::{info};
@@ -58,7 +59,7 @@ fn main() -> Result<()> {
     info!("Config: {:?}", confy::get_configuration_file_path("vmix-controller", None).with_context(|| "Bad configuration file")?);
     let cfg: config::Config = confy::load("vmix-controller", None)?;
 
-    let vmix = vmix::Client::new(cfg)?;
+    let vmix = client::Client::new(cfg)?;
 
     match &cli.command {
         Commands::Start { input } => {
