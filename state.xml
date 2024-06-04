@@ -7,7 +7,8 @@
             fs_start
             <overlay index="0" key="0116c95f-66d8-46f9-802c-3999dcc5ec7d" />
             <overlay index="1" key="7657e454-fe6a-4048-a6cb-08cdfbae769a" />
-        </input><input key="4b3c810b-bc9f-47f9-a32c-82c2c794754d" number="2" type="Colour" title="fs_break" shortTitle="fs_break" state="Paused" position="0" duration="0" loop="False">
+        </input>
+        <input key="4b3c810b-bc9f-47f9-a32c-82c2c794754d" number="2" type="Colour" title="fs_break" shortTitle="fs_break" state="Paused" position="0" duration="0" loop="False">
             fs_break
             <overlay index="0" key="0116c95f-66d8-46f9-802c-3999dcc5ec7d" />
             <overlay index="1" key="801d8fb1-ec8f-4250-b434-ac855f21ecfe" />
@@ -60,7 +61,9 @@
                 <position panX="-1.311302E-06" panY="1.766064E-09" zoomX="0.9999987" x="0" y="0" width="3840" height="2160" />
             </overlay>
         </input>
-        <input key="1e8271a7-4aea-4c85-9498-20a9f9c5c318" number="14" type="GT" title="gfx_camborder" shortTitle="gfx_camborder" state="Paused" position="0" duration="0" loop="False" selectedIndex="0">gfx_camborder</input>
+        <input key="1e8271a7-4aea-4c85-9498-20a9f9c5c318" number="14" type="GT" title="gfx_camborder" shortTitle="gfx_camborder" state="Paused" position="0" duration="0" loop="False" selectedIndex="0">
+            gfx_camborder
+        </input>
     </inputs>
     <overlays>
         <overlay number="1" />
