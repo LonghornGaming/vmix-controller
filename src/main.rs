@@ -1,19 +1,25 @@
+mod vmix;
+mod config;
+
 use clap::{Parser, Subcommand};
+use log::{info};
+use anyhow::{Context, Result};
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Cli {
-    /// Enable debug output
+    /// Enable debug mode (streaming won't be started)
     #[arg(short, long)]
     debug: bool,
 
-    /// Specify a non-local vMix endpoint
-    #[arg(short, long)]
-    api: Option<String>,
+    // /// Specify a non-local vMix endpoint
+    // #[arg(short, long)]
+    // api: Option<String>,
 
     #[command(subcommand)]
     command: Commands,
 }
+
 
 #[derive(Subcommand)]
 enum Commands {
@@ -22,14 +28,6 @@ enum Commands {
         /// The input to use
         #[arg(short, long)]
         input: Option<String>,
-        
-        /// Enables streaming to Twitch
-        #[arg(short, long)]
-        twitch: Option<bool>,
-
-        /// Enables streaming to YouTube
-        #[arg(short, long)]
-        youtube: Option<bool>,
     },
     /// Switch to the break input
     Break {
@@ -51,96 +49,38 @@ enum Commands {
     },
 }
 
-fn main() -> Result<(), reqwest::Error> {
+
+
+fn main() -> Result<()> {
+    env_logger::init();
     let cli = Cli::parse();
-    let client = reqwest::blocking::Client::new();
 
-    let url = match &cli.api {
-        None => "http://127.0.0.1:8088",
-        Some(api) => api,
-    }
-    .to_owned()
-        + "/api";
+    info!("Config: {:?}", confy::get_configuration_file_path("vmix-controller", None).with_context(|| "Bad configuration file")?);
+    let cfg: config::Config = confy::load("vmix-controller", None)?;
 
-    // if cli.debug {
-    //     let state = client.get(&url).send()?.text()?;
-    //     println!("{}", &state);
-    // }
+    let vmix = vmix::Client::new(cfg)?;
 
     match &cli.command {
-        Commands::Start { input, twitch, youtube } => {
+        Commands::Start { input } => {
             // Switch to start
-            client
-                .get(&url)
-                .query(&[
-                    ("Function", "CutDirect"),
-                    ("Input", &input.clone().unwrap_or(1.to_string())),
-                ])
-                .send()?;
-            
-            
-            // Start streaming
-            if cli.debug {
-                client 
-                    .get(&url)
-                    .query(&[
-                        ("Function", "StartStreaming"),
-                        ("Value", "3")
-                    ])
-                    .send()?;
+            vmix.cut_direct(&input.clone().unwrap_or(1.to_string()))?;
 
+            // Start streaming
+            info!("Starting streaming");
+            if cli.debug {
                 return Ok(())
             }
 
-            if twitch.unwrap_or(false) {
-                client 
-                    .get(&url)
-                    .query(&[
-                        ("Function", "StartStreaming"),
-                        ("Value", "0")
-                    ])
-                    .send()?;
-            }
-
-            if youtube.unwrap_or(false) {
-                client 
-                    .get(&url)
-                    .query(&[
-                        ("Function", "StartStreaming"),
-                        ("Value", "1")
-                    ])
-                    .send()?;
-            }
+            vmix.start_streaming()?;
         }
         Commands::Break { input } => {
-            client
-                .get(&url)
-                // Switch to break
-                .query(&[
-                    ("Function", "CutDirect"),
-                    ("Input", &input.clone().unwrap_or(2.to_string())),
-                ])
-                .send()?;
+            vmix.cut_direct(&input.clone().unwrap_or(2.to_string()))?;
         }
         Commands::Game { input } => {
-            client
-                .get(&url)
-                // Switch to game
-                .query(&[
-                    ("Function", "CutDirect"),
-                    ("Input", &input.clone().unwrap_or(3.to_string())),
-                ])
-                .send()?;
+            vmix.cut_direct(&input.clone().unwrap_or(3.to_string()))?;
         }
         Commands::End { input } => {
-            client
-                .get(&url)
-                // Switch to end
-                .query(&[
-                    ("Function", "CutDirect"),
-                    ("Input", &input.clone().unwrap_or(4.to_string())),
-                ])
-                .send()?;
+            vmix.cut_direct(&input.clone().unwrap_or(4.to_string()))?;
         }
     }
     Ok(())
