@@ -3,7 +3,7 @@ mod config;
 mod xml;
 
 use clap::{Parser, Subcommand};
-use log::{info};
+use log::info;
 use anyhow::{Context, Result};
 
 #[derive(Parser)]
@@ -13,9 +13,9 @@ struct Cli {
     #[arg(short, long)]
     debug: bool,
 
-    // /// Specify a non-local vMix endpoint
-    // #[arg(short, long)]
-    // api: Option<String>,
+    /// Dump vMix XML to file
+    #[arg(long)]
+    dump_xml: bool,
 
     #[command(subcommand)]
     command: Commands,
@@ -59,12 +59,12 @@ fn main() -> Result<()> {
     info!("Config: {:?}", confy::get_configuration_file_path("vmix-controller", None).with_context(|| "Bad configuration file")?);
     let cfg: config::Config = confy::load("vmix-controller", None)?;
 
-    let vmix = client::Client::new(cfg)?;
+    let vmix = client::Client::new(cfg, cli.dump_xml)?;
 
     match &cli.command {
         Commands::Start { input } => {
             // Switch to start
-            vmix.cut_direct(&input.clone().unwrap_or(1.to_string()))?;
+            vmix.quick_play(&input.clone().unwrap_or(1.to_string()))?;
 
             // Start streaming
             info!("Starting streaming");
@@ -75,13 +75,13 @@ fn main() -> Result<()> {
             vmix.start_streaming()?;
         }
         Commands::Break { input } => {
-            vmix.cut_direct(&input.clone().unwrap_or(2.to_string()))?;
+            vmix.quick_play(&input.clone().unwrap_or(2.to_string()))?;
         }
         Commands::Game { input } => {
-            vmix.cut_direct(&input.clone().unwrap_or(3.to_string()))?;
+            vmix.quick_play(&input.clone().unwrap_or(3.to_string()))?;
         }
         Commands::End { input } => {
-            vmix.cut_direct(&input.clone().unwrap_or(4.to_string()))?;
+            vmix.quick_play(&input.clone().unwrap_or(4.to_string()))?;
         }
     }
     Ok(())
