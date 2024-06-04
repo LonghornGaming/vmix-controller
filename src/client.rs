@@ -1,12 +1,12 @@
 #![allow(dead_code)]
 
-use anyhow::{Context, Result};
-use reqwest::blocking::RequestBuilder;
-use log::{info, warn};
 use crate::config::Config;
-use crate::xml::Vmix;
-use crate::xml;
 use crate::config::Input;
+use crate::xml;
+use crate::xml::Vmix;
+use anyhow::{Context, Result};
+use log::{info, warn};
+use reqwest::blocking::RequestBuilder;
 
 use std::fs::File;
 use std::io::prelude::*;
@@ -22,11 +22,16 @@ impl Client {
         info!("Initializing endpoint {}", cfg.endpoint);
         let client = reqwest::blocking::Client::new();
 
-        let api =  format!("http://{}/api", cfg.endpoint);
+        let api = format!("http://{}/api", cfg.endpoint);
 
-        let response = client.get(&api).send()
-                                        .with_context(|| "could not connect to vMix (check the IP-address and the port in vMix settings)".to_string())?
-                                        .text()?;
+        let response = client
+            .get(&api)
+            .send()
+            .with_context(|| {
+                "could not connect to vMix (check the IP-address and the port in vMix settings)"
+                    .to_string()
+            })?
+            .text()?;
 
         if dump_xml {
             File::create("last_state.xml")?.write_all(&response.as_bytes())?;
@@ -40,11 +45,7 @@ impl Client {
             warn!("vMix versions less that 27 are not supported");
         }
 
-        Ok(Self {
-            api,
-            client,
-            state
-        })
+        Ok(Self { api, client, state })
     }
 
     pub fn inputs(&self) -> Vec<xml::Input> {
@@ -52,9 +53,7 @@ impl Client {
     }
 
     fn call(&self, name: &str) -> RequestBuilder {
-        self.client
-            .get(&self.api)
-            .query(&[("Function", name)])
+        self.client.get(&self.api).query(&[("Function", name)])
     }
 
     pub fn start_streaming(&self) -> Result<()> {
@@ -63,22 +62,41 @@ impl Client {
     }
 
     pub fn quick_play(&self, input: &Input) -> Result<()> {
-        self.call("QuickPlay").query(&[
-            ("Input",  match input {
-                Input::Key(key) => key.clone(),
-                Input::Number(num) => num.to_string(),
-            })
-        ]).send()?;
+        self.call("QuickPlay")
+            .query(&[(
+                "Input",
+                match input {
+                    Input::Key(key) => key.clone(),
+                    Input::Number(num) => num.to_string(),
+                },
+            )])
+            .send()?;
         Ok(())
     }
 
     pub fn cut_direct(&self, input: &Input) -> Result<()> {
-        self.call("CutDirect").query(&[
-            ("Input", match input {
-                Input::Key(key) => key.clone(),
-                Input::Number(num) => num.to_string(),
-            })
-        ]).send()?;
+        self.call("CutDirect")
+            .query(&[(
+                "Input",
+                match input {
+                    Input::Key(key) => key.clone(),
+                    Input::Number(num) => num.to_string(),
+                },
+            )])
+            .send()?;
+        Ok(())
+    }
+
+    pub fn set_text(&self, input: &Input, value: String) -> Result<()> {
+        self.call("SetText")
+            .query(&[
+                ("Input", match input {
+                        Input::Key(key) => key.clone(),
+                        Input::Number(num) => num.to_string(),
+                },),
+                ("Value", value)
+            ])
+            .send()?;
         Ok(())
     }
 }
