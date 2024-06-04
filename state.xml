@@ -1,0 +1,42 @@
+<vmix>
+    <version>27.0.0.76</version>
+    <edition>4K</edition>
+    <preset>C:\Users\Public\VMIX\Isaac's Elden Ring Playthrough\eldenring.vmix</preset>
+    <inputs>
+    <input key="68364a8f-6778-43ab-8f74-f4b168dc97ad" number="1" type="Colour" title="fs_start" shortTitle="fs_start" state="Paused" position="0" duration="0" loop="False">fs_start
+        <overlay index="0" key="0116c95f-66d8-46f9-802c-3999dcc5ec7d" /><overlay index="1" key="7657e454-fe6a-4048-a6cb-08cdfbae769a" /></input><input key="4b3c810b-bc9f-47f9-a32c-82c2c794754d" number="2" type="Colour" title="fs_break" shortTitle="fs_break" state="Paused" position="0" duration="0" loop="False">fs_break<overlay index="0" key="0116c95f-66d8-46f9-802c-3999dcc5ec7d" />
+        <overlay index="1" key="801d8fb1-ec8f-4250-b434-ac855f21ecfe" />
+    </input>
+    <input key="f7e83a32-3ddd-41d2-bc5f-b0198dca67d0" number="3" type="Colour" title="fs_game" shortTitle="fs_game" state="Paused" position="0" duration="0" loop="False">fs_game<overlay index="0" key="e606fd7f-85ab-4c57-8b94-a0786d891989" /><overlay index="1" key="60204e61-1163-48ac-adad-c582c17cdbd0"><position panX="0.7895424" panY="0.6473551" zoomX="0.3526449" zoomY="0.3526449" x="2758.8" y="0" width="1354.2" height="761.7" /></overlay></input><input key="8f043dc7-8be8-4555-aedc-96a30e9f2297" number="4" type="Colour" title="fs_end" shortTitle="fs_end" state="Paused" position="0" duration="0" loop="False">fs_end<overlay index="0" key="0116c95f-66d8-46f9-802c-3999dcc5ec7d" /><overlay index="1" key="be0244d5-a68c-4155-8f0e-e43d334794ea" /></input><input key="118cfae3-51a3-45ef-8974-6c228e5a6b40" number="5" type="Capture" title="in_pov1" shortTitle="in_pov1" state="Running" position="0" duration="0" loop="False">in_pov1</input><input key="e606fd7f-85ab-4c57-8b94-a0786d891989" number="6" type="Capture" title="in_spectator1" shortTitle="in_spectator1" state="Running" position="0" duration="0" loop="False" muted="False" volume="6.25" balance="0" solo="False" soloPFL="False" audiobusses="B" meterF1="1.907349E-06" meterF2="1.907349E-06" gainDb="0">in_spectator1</input><input key="0116c95f-66d8-46f9-802c-3999dcc5ec7d" number="7" type="Virtual" title="Virtual - in_blurred_spectator1" shortTitle="in_blurred_spectator1" state="Paused" position="0" duration="0" loop="False">Virtual - in_blurred_spectator1</input><input key="f354e24d-fd51-4d26-965a-cbf5984ddf37" number="8" type="Virtual" title="Virtual - in_blurred_pov1" shortTitle="in_blurred_pov1" state="Paused" position="0" duration="0" loop="False">Virtual - in_blurred_pov1</input><input key="7657e454-fe6a-4048-a6cb-08cdfbae769a" number="9" type="GT" title="gfx_starting" shortTitle="gfx_starting" state="Running" position="0" duration="0" loop="False" selectedIndex="0">gfx_starting<text index="0" name="TextBlock2.Text">STARTING SOON</text><text index="1" name="TextBlock1.Text">23:07</text></input><input key="801d8fb1-ec8f-4250-b434-ac855f21ecfe" number="10" type="GT" title="gfx_break" shortTitle="gfx_break" state="Paused" position="0" duration="0" loop="False" selectedIndex="0">gfx_break<text index="0" name="TextBlock2.Text">BE RIGHT BACK</text><text index="1" name="TextBlock1.Text">21:46</text></input><input key="be0244d5-a68c-4155-8f0e-e43d334794ea" number="11" type="GT" title="gfx_end" shortTitle="gfx_end" state="Running" position="0" duration="0" loop="False" selectedIndex="0">gfx_end<text index="0" name="TextBlock2.Text">Ending Soon</text><text index="1" name="TextBlock1.Text">30:00</text></input><input key="5c754f08-331e-4a4f-a1ab-6a41323d831d" number="12" type="Audio" title="in_mic1" shortTitle="in_mic1" state="Running" position="0" duration="0" loop="False" muted="False" volume="0" balance="0" solo="False" soloPFL="False" audiobusses="A" meterF1="0" meterF2="0" gainDb="0">in_mic1</input><input key="60204e61-1163-48ac-adad-c582c17cdbd0" number="13" type="Colour" title="gfx_cam" shortTitle="gfx_cam" state="Paused" position="0" duration="0" loop="False">gfx_cam<overlay index="0" key="118cfae3-51a3-45ef-8974-6c228e5a6b40"><position panX="-0.1229657" x="-236.1" y="0" width="3840" height="2160" /></overlay><overlay index="1" key="1e8271a7-4aea-4c85-9498-20a9f9c5c318"><position panX="-1.311302E-06" panY="1.766064E-09" zoomX="0.9999987" x="0" y="0" width="3840" height="2160" /></overlay></input><input key="1e8271a7-4aea-4c85-9498-20a9f9c5c318" number="14" type="GT" title="gfx_camborder" shortTitle="gfx_camborder" state="Paused" position="0" duration="0" loop="False" selectedIndex="0">gfx_camborder</input></inputs><overlays><overlay number="1" /><overlay number="2" /><overlay number="3" /><overlay number="4" /><overlay number="5" /><overlay number="6" /><overlay number="7" /><overlay number="8" /></overlays>
+    <preview>3</preview>
+    <active>1</active>
+    <fadeToBlack>False</fadeToBlack>
+    <transitions>
+        <transition number="1" effect="Fade" duration="500" />
+        <transition number="2" effect="Merge" duration="1000" />
+        <transition number="3" effect="Wipe" duration="1000" />
+        <transition number="4" effect="CubeZoom" duration="1000" />
+    </transitions>
+    <recording>False</recording>
+    <external>False</external>
+    <streaming>False</streaming>
+    <playList>False</playList>
+    <multiCorder>False</multiCorder>
+    <fullscreen>False</fullscreen>
+    <audio>
+        <master volume="100" muted="False" meterF1="1.907349E-06" meterF2="1.907349E-06" headphonesVolume="100" />
+        <busA volume="100" muted="True" meterF1="0" meterF2="0" solo="False" sendToMaster="True" />
+        <busB volume="100" muted="False" meterF1="1.907349E-06" meterF2="1.907349E-06" solo="False" sendToMaster="True" />
+        <busC volume="100" muted="False" meterF1="0" meterF2="0" solo="False" sendToMaster="False" />
+    </audio>
+    <dynamic>
+        <input1></input1>
+        <input2></input2>
+        <input3></input3>
+        <input4></input4>
+        <value1></value1>
+        <value2></value2>
+        <value3></value3>
+        <value4></value4>
+    </dynamic>
+</vmix>
