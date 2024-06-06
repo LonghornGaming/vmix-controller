@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 
-use crate::Input;
 use crate::xml;
 use crate::xml::Vmix;
+use crate::Input;
 use anyhow::{Context, Result};
 use log::{info, warn};
 use reqwest::blocking::RequestBuilder;

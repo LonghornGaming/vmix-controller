@@ -27,6 +27,7 @@ impl Default for Config {
         }
     }
 }
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Inputs {
     vals: Vec<(SwitchCommands, Input)>,
