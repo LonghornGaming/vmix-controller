@@ -70,7 +70,7 @@ fn main() -> Result<()> {
     );
     let cfg: config::Config = confy::load("vmix-controller", None)?;
 
-    let mut vmix = client::Client::new(&cfg)?;
+    let mut vmix = client::VmixClient::new(&cfg)?;
 
     match &cli.command {
         Commands::Inputs => {
@@ -83,6 +83,10 @@ fn main() -> Result<()> {
 
         Commands::DumpXml => {
             File::create("last_state.xml")?.write_all(vmix.xml()?.as_bytes())?;
+
+            if cli.debug {
+                println!("Parsed State: {:#?}", vmix.state()?)
+            }
         }
 
         Commands::Inc { title, idx } => {
@@ -100,7 +104,7 @@ fn main() -> Result<()> {
                     // Start streaming
                     info!("Starting streaming");
                     if cli.debug {
-                        return Ok(());
+                        return Ok(()); // Don't stream in debug mode
                     }
 
                     vmix.start_streaming()?;

@@ -2,6 +2,8 @@
 
 use serde::Deserialize;
 
+// quick-xml is smart enough that we can skip many fields that we don't actually care about
+
 #[derive(Deserialize, Debug)]
 pub struct Vmix {
     pub version: String,
@@ -9,8 +11,8 @@ pub struct Vmix {
     // pub overlays: OverlayList,
     pub preview: u32,
     pub active: u32,
-    #[serde(rename = "fadeToBlack")]
-    pub ftb: bool,
+    // #[serde(rename = "fadeToBlack")]
+    // pub ftb: bool,
     // pub transitions: TransitionList,
     pub recording: bool,
     pub external: bool,
@@ -46,8 +48,8 @@ pub struct Input {
     pub kind: String,
     #[serde(rename = "@title")]
     pub title: String,
-    #[serde(rename = "@state")]
-    pub state: String,
+    // #[serde(rename = "@state")]
+    // pub state: String,
     pub text: Option<Vec<Text>>,
 }
 

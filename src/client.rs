@@ -8,14 +8,14 @@ use anyhow::{Context, Result};
 use log::{info, warn};
 use reqwest::blocking::RequestBuilder;
 
-pub struct Client {
+pub struct VmixClient {
     api: String,
     client: reqwest::blocking::Client,
     xml: String,
-    state: Option<Vmix>
+    state: Option<Vmix>,
 }
 
-impl Client {
+impl VmixClient {
     pub fn new(cfg: &Config) -> Result<Self> {
         info!("Initializing endpoint {}", cfg.endpoint);
         let client = reqwest::blocking::Client::new();
@@ -33,12 +33,12 @@ impl Client {
 
         let state = None;
 
-        // let major_version = state.version.split_once('.').unwrap().0.parse::<u32>()?;
-        // if major_version < 27 {
-        //     warn!("vMix versions less that 27 are not supported");
-        // }
-
-        Ok(Self { api, client, xml, state })
+        Ok(Self {
+            api,
+            client,
+            xml,
+            state,
+        })
     }
 
     pub fn xml(&self) -> Result<&String> {
@@ -46,9 +46,22 @@ impl Client {
     }
 
     // Only parse XML when actually necessary
-    fn state(&mut self) -> Result<&Vmix> {
+    pub fn state(&mut self) -> Result<&Vmix> {
         if let None = &self.state {
             self.state = Some(quick_xml::de::from_str(&self.xml)?);
+
+            let major_version = &self
+                .state
+                .as_ref()
+                .unwrap()
+                .version
+                .split_once('.')
+                .unwrap()
+                .0
+                .parse::<u32>()?;
+            if *major_version < 27 {
+                warn!("vMix versions less that 27 are not supported");
+            }
         };
 
         match &self.state {
