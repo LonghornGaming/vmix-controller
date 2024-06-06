@@ -22,12 +22,11 @@ struct Cli {
 
 #[derive(Subcommand, Serialize, Deserialize, Debug)]
 enum Commands {
-    /// Get the available inputs
-    Inputs,
-    /// Get the available titles
-    Titles,
-    /// Dump XML to file
-    DumpXml,
+    /// Dump given value
+    Dump {
+        #[command(subcommand)]
+        input: DumpCommands,
+    },
     /// Switch to a given input
     Switch {
         #[command(subcommand)]
@@ -58,6 +57,18 @@ enum SwitchCommands {
     End,
 }
 
+#[derive(
+    Subcommand, Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord,
+)]
+enum DumpCommands {
+    /// Dump the raw XML state from vMix
+    Xml,
+    /// Get the available inputs
+    Inputs,
+    /// Get the available titles
+    Titles,
+}
+
 fn main() -> Result<()> {
     env_logger::init();
     let cli = Cli::parse();
@@ -72,21 +83,21 @@ fn main() -> Result<()> {
     let mut vmix = vmix::client::Client::new(&cfg.endpoint)?;
 
     match &cli.command {
-        Commands::Inputs => {
-            println!("\nInputs: {:#?}", vmix.inputs());
-        }
-
-        Commands::Titles => {
-            println!("\nTitles: {:#?}", vmix.titles());
-        }
-
-        Commands::DumpXml => {
-            File::create("last_state.xml")?.write_all(vmix.xml()?.as_bytes())?;
-
-            if cli.debug {
-                println!("Parsed State: {:#?}", vmix.state()?)
+        Commands::Dump { input } => match input {
+            &DumpCommands::Inputs => {
+                println!("\nInputs: {:#?}", vmix.inputs());
             }
-        }
+
+            &DumpCommands::Titles => {
+                println!("\nTitles: {:#?}", vmix.titles());
+            }
+
+            &DumpCommands::Xml => {
+                File::create("last_state.xml")?.write_all(vmix.xml()?.as_bytes())?;
+
+                println!("Parsed State: {:#?}", vmix.state()?);
+            }
+        },
 
         Commands::Inc { title, idx } => {
             let text = vmix.get_text(title, *idx)?;
