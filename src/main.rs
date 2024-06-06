@@ -1,6 +1,5 @@
-mod client;
+use vmix;
 mod config;
-mod xml;
 
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
@@ -38,7 +37,7 @@ enum Commands {
     Inc {
         /// The title
         #[arg(short, long)]
-        title: crate::config::Input,
+        title: vmix::Input,
         /// The index of the text to increment
         #[arg(short, long)]
         idx: Option<u32>,
@@ -70,7 +69,7 @@ fn main() -> Result<()> {
     );
     let cfg: config::Config = confy::load("vmix-controller", None)?;
 
-    let mut vmix = client::VmixClient::new(&cfg)?;
+    let mut vmix = vmix::client::Client::new(&cfg.endpoint)?;
 
     match &cli.command {
         Commands::Inputs => {

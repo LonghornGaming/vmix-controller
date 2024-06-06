@@ -1,26 +1,25 @@
 #![allow(dead_code)]
 
-use crate::config::Config;
-use crate::config::Input;
+use crate::Input;
 use crate::xml;
 use crate::xml::Vmix;
 use anyhow::{Context, Result};
 use log::{info, warn};
 use reqwest::blocking::RequestBuilder;
 
-pub struct VmixClient {
+pub struct Client {
     api: String,
     client: reqwest::blocking::Client,
     xml: String,
     state: Option<Vmix>,
 }
 
-impl VmixClient {
-    pub fn new(cfg: &Config) -> Result<Self> {
-        info!("Initializing endpoint {}", cfg.endpoint);
+impl Client {
+    pub fn new(endpoint: &str) -> Result<Self> {
+        info!("Initializing endpoint {}", &endpoint);
         let client = reqwest::blocking::Client::new();
 
-        let api = format!("http://{}/api", cfg.endpoint);
+        let api = format!("http://{}/api", &endpoint);
 
         let xml = client
             .get(&api)
