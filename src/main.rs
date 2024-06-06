@@ -41,6 +41,11 @@ enum Commands {
         #[arg(short, long)]
         idx: Option<u32>,
     },
+    /// Run alerts
+    Alerts {
+        #[command(subcommand)]
+        input: AlertCommands,
+    }
 }
 
 #[derive(
@@ -67,6 +72,16 @@ enum DumpCommands {
     Inputs,
     /// Get the available titles
     Titles,
+}
+
+#[derive(
+    Subcommand, Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord,
+)]
+enum AlertCommands {
+    /// YouTube Alerts
+    Youtube,
+    /// Twitch Alerts
+    Twitch,
 }
 
 fn main() -> Result<()> {
@@ -123,6 +138,10 @@ fn main() -> Result<()> {
                     vmix.quick_play(cfg.inputs.at(*input)?)?;
                 }
             }
+        }
+
+        Commands::Alerts { input } => {
+            todo!()
         }
     }
     Ok(())
