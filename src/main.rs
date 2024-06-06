@@ -70,7 +70,7 @@ fn main() -> Result<()> {
     );
     let cfg: config::Config = confy::load("vmix-controller", None)?;
 
-    let vmix = client::Client::new(&cfg)?;
+    let mut vmix = client::Client::new(&cfg)?;
 
     match &cli.command {
         Commands::Inputs => {

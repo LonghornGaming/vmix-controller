@@ -11,7 +11,8 @@ use reqwest::blocking::RequestBuilder;
 pub struct Client {
     api: String,
     client: reqwest::blocking::Client,
-    state: Vmix,
+    xml: String,
+    state: Option<Vmix>
 }
 
 impl Client {
@@ -21,7 +22,7 @@ impl Client {
 
         let api = format!("http://{}/api", cfg.endpoint);
 
-        let response = client
+        let xml = client
             .get(&api)
             .send()
             .with_context(|| {
@@ -30,34 +31,38 @@ impl Client {
             })?
             .text()?;
 
-        let state: Vmix = quick_xml::de::from_str(&response)?;
-        info!("{:#?}", &state);
+        let state = None;
 
-        let major_version = state.version.split_once('.').unwrap().0.parse::<u32>()?;
-        if major_version < 27 {
-            warn!("vMix versions less that 27 are not supported");
+        // let major_version = state.version.split_once('.').unwrap().0.parse::<u32>()?;
+        // if major_version < 27 {
+        //     warn!("vMix versions less that 27 are not supported");
+        // }
+
+        Ok(Self { api, client, xml, state })
+    }
+
+    pub fn xml(&self) -> Result<&String> {
+        Ok(&self.xml)
+    }
+
+    // Only parse XML when actually necessary
+    fn state(&mut self) -> Result<&Vmix> {
+        if let None = &self.state {
+            self.state = Some(quick_xml::de::from_str(&self.xml)?);
+        };
+
+        match &self.state {
+            Some(state) => Ok(&state),
+            None => unreachable!(),
         }
-
-        Ok(Self { api, client, state })
     }
 
-    pub fn xml(&self) -> Result<String> {
-        Ok(self.client
-            .get(&self.api)
-            .send()
-            .with_context(|| {
-                "could not connect to vMix (check the IP-address and the port in vMix settings)"
-                    .to_string()
-            })?
-            .text()?)
+    pub fn inputs(&mut self) -> Result<&[xml::Input]> {
+        Ok(self.state()?.inputs.input.as_slice())
     }
 
-    pub fn inputs(&self) -> &[xml::Input] {
-        self.state.inputs.input.as_slice()
-    }
-
-    pub fn titles(&self) -> Vec<&xml::Input> {
-        self.inputs().iter().filter(|i| i.kind == "GT").collect()
+    pub fn titles(&mut self) -> Result<Vec<&xml::Input>> {
+        Ok(self.inputs()?.iter().filter(|i| i.kind == "GT").collect())
     }
 
     fn call(&self, name: &str) -> RequestBuilder {
@@ -115,9 +120,9 @@ impl Client {
         Ok(())
     }
 
-    pub fn get(&self, input: &Input) -> Result<&xml::Input> {
+    pub fn get(&mut self, input: &Input) -> Result<&xml::Input> {
         let val = self
-            .inputs()
+            .inputs()?
             .iter()
             .filter(|t| match &input {
                 &Input::Number(num) => t.number.parse::<u32>().unwrap() == *num,
@@ -129,7 +134,7 @@ impl Client {
         Ok(val)
     }
 
-    pub fn get_text(&self, input: &Input, idx: Option<u32>) -> Result<String> {
+    pub fn get_text(&mut self, input: &Input, idx: Option<u32>) -> Result<String> {
         let prev_text = &self.get(input)?.text.as_ref().unwrap()[match idx {
             Some(i) => i as usize,
             None => 0,
