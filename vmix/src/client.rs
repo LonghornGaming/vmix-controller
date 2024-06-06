@@ -63,10 +63,21 @@ impl Client {
             }
         };
 
-        match &self.state {
-            Some(state) => Ok(&state),
-            None => unreachable!(),
-        }
+        Ok(&self.state.as_ref().unwrap())
+    }
+
+    pub fn refresh(&mut self) -> Result<()> {
+        self.xml = self.client
+            .get(&self.api)
+            .send()
+            .with_context(|| {
+                "could not connect to vMix (check the IP-address and the port in vMix settings)"
+                    .to_string()
+            })?
+            .text()?;
+
+        self.state = None;
+        Ok(())
     }
 
     pub fn inputs(&mut self) -> Result<&[xml::Input]> {
