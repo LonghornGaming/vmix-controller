@@ -11,6 +11,7 @@ env_logger = { workspace = true }
 log = { workspace = true }
 anyhow = { workspace = true }
 vmix = { path = "vmix" }
+youtube = { path = "youtube" }
 
 
 [workspace]

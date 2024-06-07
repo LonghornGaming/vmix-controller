@@ -1,4 +1,5 @@
 use vmix;
+use youtube;
 mod config;
 
 use anyhow::{Context, Result};
@@ -45,7 +46,7 @@ enum Commands {
     Alerts {
         #[command(subcommand)]
         input: AlertCommands,
-    }
+    },
 }
 
 #[derive(
@@ -62,21 +63,32 @@ enum SwitchCommands {
     End,
 }
 
-#[derive(
-    Subcommand, Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord,
-)]
+#[derive(Subcommand, Serialize, Deserialize, Debug)]
 enum DumpCommands {
     /// Dump the raw XML state from vMix
-    Xml,
+    VmixXml,
     /// Get the available inputs
-    Inputs,
+    VmixInputs,
     /// Get the available titles
-    Titles,
+    VmixTitles,
+    /// YT Broadcasts
+    YTBroadcasts {
+        /// The api key
+        #[arg(short, long)]
+        key: String,
+    },
+    /// YT Live Chat
+    YTChat {
+        /// The api key
+        #[arg(short, long)]
+        key: String,
+        /// The chat id
+        #[arg(short, long)]
+        id: String,
+    },
 }
 
-#[derive(
-    Subcommand, Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord,
-)]
+#[derive(Subcommand, Serialize, Deserialize, Debug)]
 enum AlertCommands {
     /// YouTube Alerts
     Youtube,
@@ -95,32 +107,49 @@ fn main() -> Result<()> {
     );
     let cfg: config::Config = confy::load("vmix-controller", None)?;
 
-    let mut vmix = vmix::client::Client::new(&cfg.endpoint)?;
+    // let mut vmix = vmix::client::Client::new(&cfg.endpoint)?;
 
     match &cli.command {
         Commands::Dump { input } => match input {
-            &DumpCommands::Inputs => {
+            &DumpCommands::VmixInputs => {
+                let mut vmix = vmix::client::Client::new(&cfg.endpoint)?;
                 println!("\nInputs: {:#?}", vmix.inputs());
             }
 
-            &DumpCommands::Titles => {
+            &DumpCommands::VmixTitles => {
+                let mut vmix = vmix::client::Client::new(&cfg.endpoint)?;
                 println!("\nTitles: {:#?}", vmix.titles());
             }
 
-            &DumpCommands::Xml => {
+            &DumpCommands::VmixXml => {
+                let mut vmix = vmix::client::Client::new(&cfg.endpoint)?;
                 File::create("last_state.xml")?.write_all(vmix.xml()?.as_bytes())?;
 
                 println!("Parsed State: {:#?}", vmix.state()?);
             }
+
+            DumpCommands::YTBroadcasts { key } => {
+                let yt = youtube::client::Client::new(key.to_string())?;
+
+                println!("Broadcasts: {}", yt.get_broadcasts(None)?);
+            }
+
+            DumpCommands::YTChat { key, id } => {
+                let yt = youtube::client::Client::new(key.to_string())?;
+
+                println!("Parsed Chat: {:#?}", yt.get_chat(id, None)?);
+            }
         },
 
         Commands::Inc { title, idx } => {
+            let mut vmix = vmix::client::Client::new(&cfg.endpoint)?;
             let text = vmix.get_text(title, *idx)?;
             let val: u32 = text.parse()?;
             vmix.set_text(title, *idx, (val + 1).to_string())?;
         }
 
         Commands::Switch { input } => {
+            let vmix = vmix::client::Client::new(&cfg.endpoint)?;
             match input {
                 &SwitchCommands::Start => {
                     // Switch to start

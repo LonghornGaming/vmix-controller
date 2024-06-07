@@ -8,5 +8,5 @@ serde = { workspace = true }
 env_logger = { workspace = true }
 log = { workspace = true }
 anyhow = { workspace = true }
-reqwest = { version = "0.12", features = ["json"] }
+reqwest = { version = "0.12", features = ["blocking", "gzip"] }
 simd-json = "0.13.10"

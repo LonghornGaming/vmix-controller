@@ -67,7 +67,8 @@ impl Client {
     }
 
     pub fn refresh(&mut self) -> Result<()> {
-        self.xml = self.client
+        self.xml = self
+            .client
             .get(&self.api)
             .send()
             .with_context(|| {
