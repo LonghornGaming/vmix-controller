@@ -5,13 +5,14 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4.5.13", features = ["derive"] }
-confy = "0.6.1"
+mimalloc = "0.1.43"
 serde = { workspace = true }
 env_logger = { workspace = true }
 log = { workspace = true }
 anyhow = { workspace = true }
 vmix = { path = "vmix" }
 youtube = { path = "youtube" }
+twitch = { path = "twitch" }
 
 [workspace]
 members = [ 
@@ -26,3 +27,10 @@ env_logger = "0.11.3"
 log = "0.4.21"
 anyhow = "1.0.86"
 oauth2 = "4.4.2"
+
+# Optimize all dependencies even in debug builds (does not affect workspace packages):
+[profile.dev.package."*"]
+opt-level = "s"
+
+[profile.release]
+panic = "abort" # This leads to better optimizations and smaller binaries (and is the default in Wasm anyways).
