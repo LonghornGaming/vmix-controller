@@ -1,9 +1,10 @@
+use twitch;
 use vmix;
 use youtube;
 
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
-use log::info;
+// use log::info;
 use serde::{Deserialize, Serialize};
 
 use mimalloc::MiMalloc;
@@ -62,6 +63,8 @@ enum DumpCommands {
         #[arg(short, long)]
         id: String,
     },
+    /// Dump the Twitch OAuth2 token
+    TwitchToken,
 }
 
 #[derive(Subcommand, Serialize, Deserialize, Debug)]
@@ -72,6 +75,7 @@ enum AlertCommands {
     Twitch,
 }
 const VMIX_ENDPOINT: &str = "127.0.0.1:8088";
+const TWITCH_CLIENT_ID: &str = "rbt9n9wzhjxett8r99q2i15nc7enqx";
 
 fn main() -> Result<()> {
     env_logger::init();
@@ -79,17 +83,17 @@ fn main() -> Result<()> {
 
     match &cli.command {
         Commands::Dump { input } => match input {
-            &DumpCommands::VmixInputs => {
+            DumpCommands::VmixInputs => {
                 let mut vmix = vmix::client::Client::new(VMIX_ENDPOINT)?;
                 println!("\nInputs: {:#?}", vmix.inputs());
             }
 
-            &DumpCommands::VmixTitles => {
+            DumpCommands::VmixTitles => {
                 let mut vmix = vmix::client::Client::new(VMIX_ENDPOINT)?;
                 println!("\nTitles: {:#?}", vmix.titles());
             }
 
-            &DumpCommands::VmixXml => {
+            DumpCommands::VmixXml => {
                 let mut vmix = vmix::client::Client::new(VMIX_ENDPOINT)?;
                 File::create("last_state.xml")?.write_all(vmix.xml()?.as_bytes())?;
 
@@ -107,13 +111,19 @@ fn main() -> Result<()> {
 
                 println!("Parsed Chat: {:#?}", yt.get_chat(id, None)?);
             }
+
+            DumpCommands::TwitchToken => {
+                let twitch = twitch::client::Client::new(TWITCH_CLIENT_ID);
+
+                println!("Auth: {:#?}", twitch.auth()?);
+            }
         },
 
         Commands::Alerts { input } => match input {
-            &AlertCommands::Twitch => {
+            AlertCommands::Twitch => {
                 todo!()
             }
-            &AlertCommands::Youtube => {
+            AlertCommands::Youtube => {
                 todo!()
             }
         },

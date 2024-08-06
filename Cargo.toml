@@ -12,6 +12,7 @@ log = { workspace = true }
 anyhow = { workspace = true }
 vmix = { path = "vmix" }
 youtube = { path = "youtube" }
+twitch = { path = "twitch" }
 
 [workspace]
 members = [ 
